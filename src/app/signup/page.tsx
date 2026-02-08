@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
@@ -103,10 +104,15 @@ export default function SignupPage() {
             <div className="max-w-md w-full">
                 {/* Logo/Brand */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 mb-4">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
+                    <div className="inline-flex items-center justify-center mb-4">
+                        <Image
+                            src="/medibill_logo.svg"
+                            alt="MediBill Logo"
+                            width={180}
+                            height={60}
+                            className="h-14 w-auto"
+                            priority
+                        />
                     </div>
                     <h1 className="text-2xl font-bold text-white">Create Account</h1>
                     <p className="text-slate-400 mt-2">Join us to get started</p>

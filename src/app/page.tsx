@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAnalysis } from "./context/AnalysisContext";
 import { useAuth } from "./context/AuthContext";
@@ -75,26 +76,31 @@ function HomeContent() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-12 bg-gray-50">
-      {/* User Header */}
-      <div className="w-full max-w-2xl mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
-            {user?.email?.charAt(0).toUpperCase() || "U"}
-          </div>
-          <div>
+      {/* Header with Logo and User Info */}
+      <div className="w-full max-w-2xl mb-8 flex items-center justify-between">
+        <Image
+          src="/medibill_logo.svg"
+          alt="MediBill Logo"
+          width={140}
+          height={45}
+          className="h-10 w-auto"
+          priority
+        />
+        <div className="flex items-center gap-4">
+          <div className="text-right">
             <p className="text-sm font-medium text-gray-900">Welcome back</p>
-            <p className="text-xs text-gray-500 truncate max-w-[200px]">{user?.email}</p>
+            <p className="text-xs text-gray-500 truncate max-w-[180px]">{user?.email}</p>
           </div>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign Out
+          </button>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Sign Out
-        </button>
       </div>
 
       {/* Upload Section */}

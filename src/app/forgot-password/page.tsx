@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 
 export default function ForgotPasswordPage() {
@@ -34,10 +35,15 @@ export default function ForgotPasswordPage() {
             <div className="max-w-md w-full">
                 {/* Logo/Brand */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30 mb-4">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                        </svg>
+                    <div className="inline-flex items-center justify-center mb-4">
+                        <Image
+                            src="/medibill_logo.svg"
+                            alt="MediBill Logo"
+                            width={180}
+                            height={60}
+                            className="h-14 w-auto"
+                            priority
+                        />
                     </div>
                     <h1 className="text-2xl font-bold text-white">Reset Password</h1>
                     <p className="text-slate-400 mt-2">We'll send you a reset link</p>

@@ -24,7 +24,7 @@ const schema: Schema = {
     },
     percentage: {
       type: SchemaType.NUMBER,
-      description: 'The probability (0-100) the appeal will be won and total compensation received',
+      description: 'The probability as a NUMBER BETWEEN 0 and 100 (NOT a percentage like 8500, just a number like 85 for 85%)',
       nullable: false,
     },
     total_billed_amount: {
@@ -95,47 +95,52 @@ POTENTIAL SAVINGS CALCULATION:
 - Be conservative - underestimate rather than overestimate
 - If you cannot identify ANY specific errors, set potential_money_back to 0
 
-FORMATTING REQUIREMENTS:
-The appeal letter MUST be professionally formatted with proper structure:
+APPEAL LETTER FORMAT - FOLLOW EXACTLY:
+Use \\n for line breaks within the letter. Each item below MUST be on its own line:
 
-[Patient Name]
-[Patient Address]
-[City, State ZIP]
-
-[Current Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}]
-
-[Insurance Company/Provider Name]
-[Claims Department]
-[Address if available]
-
-Re: Appeal for Medical Claim - [Patient Name]
-    Member ID: [ID from document]
-    Date of Service: [DOS from document]
-    Bill/Claim Number: [from document]
-
-Dear [Insurance Company/Claims Department],
-
-[Opening paragraph stating purpose]
-
-[Body paragraph 1: Describe the specific billing error(s)]
-
-[Body paragraph 2: Cite specific codes, dates, amounts, and why they're incorrect]
-
-[Body paragraph 3: Request for action and resolution]
-
-[Closing paragraph]
-
-Sincerely,
-
+[Patient Full Name]\\n
+[Street Address]\\n
+[City, State ZIP]\\n
+\\n
+${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\\n
+\\n
+Re: Appeal for Medical Claim\\n
+Patient: [Patient Name]\\n
+Member ID: [ID from document]\\n
+Date of Service: [DOS from document]\\n
+Bill/Claim Number: [from document]\\n
+\\n
+Dear Claims Department,\\n
+\\n
+[Opening paragraph stating purpose of the appeal]\\n
+\\n
+[Body paragraph: Describe the specific billing error(s) with CPT codes, dates, and amounts]\\n
+\\n
+[Body paragraph: Explain why the charges are incorrect and cite evidence from the document]\\n
+\\n
+[Closing paragraph: Request for review and adjustment, provide contact information]\\n
+\\n
+Sincerely,\\n
+\\n
 [Patient Name]
 
-IMPORTANT RULES:
-- Use actual patient/provider details from the document
-- If information is missing, use placeholder like "[Patient Name]" or omit that field
-- Include specific CPT/HCPCS codes, dates, and amounts from the document
-- Use proper paragraph breaks (\\n\\n between paragraphs)
-- Be professional and factual, not emotional
-- Current date is ${new Date().toISOString()}
+CRITICAL FORMATTING RULES:
+- Use \\n to create line breaks - DO NOT put multiple items on the same line
+- Patient name, address, city/state/zip MUST each be on separate lines
+- Each "Re:" detail (Patient, Member ID, Date of Service, Bill Number) MUST be on separate lines
+- DO NOT include "[Insurance Company Address]" or any insurance address placeholder
+- Use actual patient details from the document, not placeholders
+- Be professional and factual
+- Current date: ${new Date().toISOString()}
+
+RESPONSE FORMAT EXAMPLE:
+{
+  "percentage": 75,  // ← THIS IS A NUMBER 0-100, NOT 7500!
+  "potential_money_back": 150.00,
+  "total_billed_amount": 500.00,
+  "email": "...",
+  "appeal": "..."
+}
 
 ANALYSIS CHECKLIST:
 1. Read all line items carefully
@@ -171,10 +176,19 @@ Remember: Most bills are actually correct. Only flag real errors you can prove.`
       );
     }
 
-    // Validation and cleanup
-    const percentage = Math.min(Math.max(parsedData.percentage || 0, 0), 95); // Cap at 95%
-    const potentialSavings = Math.max(parsedData.potential_money_back || 0, 0);
-    const totalBilled = Math.max(parsedData.total_billed_amount || 0, 0);
+    // AGGRESSIVE validation to fix the percentage issue
+    let percentage = Number(parsedData.percentage) || 0;
+
+    // If it's absurdly high (like 8500), it probably meant 85%
+    if (percentage > 100) {
+      percentage = Math.min(percentage / 100, 90); // Divide by 100 and cap at 90
+    }
+
+    // Clamp between 0 and 90
+    percentage = Math.min(Math.max(percentage, 0), 90);
+
+    const potentialSavings = Math.max(Number(parsedData.potential_money_back) || 0, 0);
+    const totalBilled = Math.max(Number(parsedData.total_billed_amount) || 0, 0);
 
     // Sanity check: savings can't exceed total billed
     const finalSavings = Math.min(potentialSavings, totalBilled);
@@ -185,7 +199,7 @@ Remember: Most bills are actually correct. Only flag real errors you can prove.`
         email: parsedData.email || "",
         appeal: parsedData.appeal || "",
         potential_money_back: finalSavings,
-        percentage: percentage,
+        percentage: Math.round(percentage), // Round to whole number
         total_billed_amount: totalBilled,
       }
     });

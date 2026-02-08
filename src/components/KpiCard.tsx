@@ -7,9 +7,20 @@ interface KpiCardProps {
     value: number;
     subtitle?: string;
     highlight?: boolean;
+    isCurrency?: boolean;
+    suffix?: string;
 }
 
-export default function KpiCard({ title, value, subtitle, highlight }: KpiCardProps) {
+export default function KpiCard({
+    title,
+    value,
+    subtitle,
+    highlight,
+    isCurrency = true,
+    suffix = ""
+}: KpiCardProps) {
+    const displayValue = isCurrency ? formatCurrency(value) : `${value}${suffix}`;
+
     return (
         <div className={`
             card-apple p-6 transition-all duration-300
@@ -19,7 +30,7 @@ export default function KpiCard({ title, value, subtitle, highlight }: KpiCardPr
                 {title}
             </p>
             <p className={`text-3xl font-semibold tracking-tight ${highlight ? "text-white" : "text-[var(--apple-black)]"}`}>
-                {formatCurrency(value)}
+                {displayValue}
             </p>
             {subtitle && (
                 <p className={`mt-2 text-sm ${highlight ? "text-white/60" : "text-[var(--apple-gray)]"}`}>

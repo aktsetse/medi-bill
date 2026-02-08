@@ -97,18 +97,22 @@ export default function ResultsPage() {
                         {/* Main Content */}
                         <div className="flex-1 space-y-8 animate-fade-in-up">
                             {/* KPI Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-foreground ">
                                 <KpiCard title="Total Billed" value={totalBilled} />
                                 <KpiCard
                                     title="Potential Savings"
                                     value={potentialSavings}
                                     subtitle={`${savingsPercentage}% of total`}
-                                    highlight
                                 />
-                                <KpiCard
-                                    title="Estimated Net Cost"
-                                    value={totalBilled - potentialSavings}
-                                />
+                                {/* Win Probability Card */}
+                                <div className="card-apple p-6">
+                                    <p className="text-sm font-medium mb-2 text-[var(--apple-gray)]">
+                                        Win Probability
+                                    </p>
+                                    <p className="text-4xl font-bold text-[var(--apple-blue)]">
+                                        {Math.min(analysis.percentage ?? 0, 100)}%
+                                    </p>
+                                </div>
                             </div>
 
                             {/* Chart Section */}
@@ -140,21 +144,12 @@ export default function ResultsPage() {
                                             </li>
                                         ))}
                                     </ul>
-                                    {analysis.percentage !== undefined && (
-                                        <div className="mt-6 pt-6 border-t border-[var(--apple-border)]">
-                                            <p className="text-sm">
-                                                <span className="text-[var(--apple-gray)]">Win Probability: </span>
-                                                <span className="font-semibold text-[var(--apple-black)]">
-                                                    {(analysis.percentage * 100).toFixed(0)}%
-                                                </span>
-                                            </p>
-                                        </div>
-                                    )}
+
                                 </div>
                             </Section>
 
                             {/* Appeal Letter */}
-                            <Section title="Generated Appeal Letter">
+                            <Section title="Appeal Letter">
                                 <div className="flex justify-end mb-4">
                                     <button
                                         onClick={() => navigator.clipboard.writeText(analysis.appeal)}

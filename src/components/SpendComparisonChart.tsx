@@ -5,7 +5,6 @@ import {
     Bar,
     XAxis,
     YAxis,
-    CartesianGrid,
     Tooltip,
     ResponsiveContainer,
     Cell,
@@ -23,57 +22,58 @@ export default function SpendComparisonChart({
     potentialSavings,
 }: SpendComparisonChartProps) {
     const savingsPercentage = totalBilled > 0
-        ? ((potentialSavings / totalBilled) * 100).toFixed(1)
+        ? ((potentialSavings / totalBilled) * 100).toFixed(0)
         : "0";
 
     const data = [
         {
             name: "Total Billed",
             amount: totalBilled,
-            fill: "#6b7280",
+            fill: "#86868b", // Apple gray
         },
         {
             name: `Potential Savings (${savingsPercentage}%)`,
             amount: potentialSavings,
-            fill: "#16a34a",
+            fill: "#34c759", // Apple green
         },
     ];
 
     return (
-        <div className="w-full h-48">
+        <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
                     layout="vertical"
-                    margin={{ top: 10, right: 80, left: 10, bottom: 10 }}
-                    barSize={32}
+                    margin={{ top: 20, right: 100, left: 20, bottom: 20 }}
+                    barSize={40}
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
                     <XAxis
                         type="number"
                         tickFormatter={formatCurrencyCompact}
-                        tick={{ fill: "#6b7280", fontSize: 11 }}
-                        axisLine={{ stroke: "#e5e7eb" }}
+                        tick={{ fill: "#86868b", fontSize: 12 }}
+                        axisLine={{ stroke: "#d2d2d7" }}
                         tickLine={false}
                     />
                     <YAxis
                         type="category"
                         dataKey="name"
-                        tick={{ fill: "#374151", fontSize: 12 }}
+                        tick={{ fill: "#1d1d1f", fontSize: 14, fontWeight: 500 }}
                         axisLine={false}
                         tickLine={false}
-                        width={160}
+                        width={180}
                     />
                     <Tooltip
                         formatter={(value) => formatCurrency(value as number)}
                         contentStyle={{
                             backgroundColor: "#fff",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "4px",
-                            fontSize: "12px",
+                            border: "1px solid #d2d2d7",
+                            borderRadius: "12px",
+                            fontSize: "14px",
+                            padding: "12px 16px",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
                         }}
                     />
-                    <Bar dataKey="amount" radius={[0, 2, 2, 0]}>
+                    <Bar dataKey="amount" radius={[0, 8, 8, 0]}>
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.fill} />
                         ))}
@@ -81,7 +81,7 @@ export default function SpendComparisonChart({
                             dataKey="amount"
                             position="right"
                             formatter={(value: unknown) => value != null ? formatCurrency(Number(value)) : ""}
-                            style={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
+                            style={{ fill: "#1d1d1f", fontSize: 14, fontWeight: 600 }}
                         />
                     </Bar>
                 </BarChart>

@@ -15,7 +15,6 @@ export default function LoginPage() {
     const { signIn, user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    // Redirect if already logged in
     useEffect(() => {
         if (!authLoading && user) {
             router.push("/");
@@ -38,117 +37,117 @@ export default function LoginPage() {
         }
     };
 
-    // Show loading while checking auth state
     if (authLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-                <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-[var(--apple-white)]">
+                <div className="w-8 h-8 border-2 border-[var(--apple-border)] border-t-[var(--apple-blue)] rounded-full animate-spin" />
             </div>
         );
     }
 
-    // Don't render form if user is logged in (will redirect)
     if (user) {
         return null;
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
-            <div className="max-w-md w-full">
-                {/* Logo/Brand */}
+        <main className="min-h-screen flex flex-col items-center justify-center bg-[var(--apple-white)] px-6">
+            {/* Logo */}
+            <div className="mb-12 animate-fade-in">
+                <Image
+                    src="/medibill_logo.svg"
+                    alt="MediBill"
+                    width={200}
+                    height={67}
+                    className="h-12 w-auto"
+                    priority
+                />
+            </div>
+
+            {/* Login Card */}
+            <div className="w-full max-w-[400px] animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center mb-4">
-                        <Image
-                            src="/medibill_logo.svg"
-                            alt="MediBill Logo"
-                            width={180}
-                            height={60}
-                            className="h-14 w-auto"
-                            priority
-                        />
-                    </div>
-                    <h1 className="text-2xl font-bold text-white">Welcome Back</h1>
-                    <p className="text-slate-400 mt-2">Sign in to your account</p>
+                    <h1 className="text-subheadline mb-2">Sign in</h1>
+                    <p className="text-body">Access your MediBill account</p>
                 </div>
 
-                {/* Login Form Card */}
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10">
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-200 text-sm">
-                                {error}
-                            </div>
-                        )}
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    {error && (
+                        <div className="p-4 rounded-xl bg-[var(--apple-red)]/5 border border-[var(--apple-red)]/20 text-[var(--apple-red)] text-sm text-center">
+                            {error}
+                        </div>
+                    )}
 
+                    <div className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                                Email Address
-                            </label>
+                            <label htmlFor="email" className="sr-only">Email</label>
                             <input
                                 id="email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-                                placeholder="you@example.com"
+                                className="input-apple"
+                                placeholder="Email"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                                Password
-                            </label>
+                            <label htmlFor="password" className="sr-only">Password</label>
                             <input
                                 id="password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-                                placeholder="••••••••"
+                                className="input-apple"
+                                placeholder="Password"
                             />
                         </div>
-
-                        <div className="flex items-center justify-end">
-                            <Link
-                                href="/forgot-password"
-                                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                            >
-                                Forgot password?
-                            </Link>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                        >
-                            {loading ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
-                                    Signing in...
-                                </span>
-                            ) : (
-                                "Sign In"
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="mt-6 pt-6 border-t border-white/10 text-center">
-                        <p className="text-slate-400 text-sm">
-                            Don't have an account?{" "}
-                            <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                                Create one
-                            </Link>
-                        </p>
                     </div>
+
+                    <div className="text-right">
+                        <Link
+                            href="/forgot-password"
+                            className="text-sm text-[var(--apple-blue)] hover:underline transition-colors"
+                        >
+                            Forgot password?
+                        </Link>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-apple btn-apple-primary w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-3">
+                                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                                Signing in...
+                            </span>
+                        ) : (
+                            "Continue"
+                        )}
+                    </button>
+                </form>
+
+                <div className="mt-8 pt-8 border-t border-[var(--apple-border)] text-center">
+                    <p className="text-body">
+                        New to MediBill?{" "}
+                        <Link href="/signup" className="text-[var(--apple-blue)] hover:underline font-medium">
+                            Create account
+                        </Link>
+                    </p>
                 </div>
             </div>
-        </div>
+
+            {/* Footer */}
+            <footer className="mt-16 text-center text-caption">
+                <p>© 2026 MediBill. All rights reserved.</p>
+            </footer>
+        </main>
     );
 }
 
@@ -157,19 +156,17 @@ function getErrorMessage(error: unknown): string {
         const code = (error as { code: string }).code;
         switch (code) {
             case "auth/invalid-email":
-                return "Invalid email address.";
+                return "Please enter a valid email address.";
             case "auth/user-disabled":
                 return "This account has been disabled.";
             case "auth/user-not-found":
-                return "No account found with this email.";
             case "auth/wrong-password":
-                return "Incorrect password.";
             case "auth/invalid-credential":
                 return "Invalid email or password.";
             case "auth/too-many-requests":
-                return "Too many failed attempts. Please try again later.";
+                return "Too many attempts. Please try again later.";
             default:
-                return "Failed to sign in. Please try again.";
+                return "Unable to sign in. Please try again.";
         }
     }
     return "An unexpected error occurred.";

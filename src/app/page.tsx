@@ -19,6 +19,7 @@ function HomeContent() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const [dragActive, setDragActive] = useState(false);
 
   const router = useRouter();
   const { setAnalysis } = useAnalysis();
@@ -27,6 +28,27 @@ function HomeContent() {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setStatus("idle");
+      setMessage("");
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
       setStatus("idle");
       setMessage("");
     }
@@ -53,9 +75,7 @@ function HomeContent() {
         throw new Error(result.error || "Upload failed");
       }
 
-      // Store in shared context and navigate to results
       setAnalysis(result.data);
-      console.log("Server response:", result);
       router.push("/results");
 
     } catch (error) {
@@ -75,75 +95,124 @@ function HomeContent() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-12 bg-gray-50">
-      {/* Header with Logo and User Info */}
-      <div className="w-full max-w-2xl mb-8 flex items-center justify-between">
-        <Image
-          src="/medibill_logo.svg"
-          alt="MediBill Logo"
-          width={140}
-          height={45}
-          className="h-10 w-auto"
-          priority
-        />
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">Welcome back</p>
-            <p className="text-xs text-gray-500 truncate max-w-[180px]">{user?.email}</p>
+    <div className="min-h-screen bg-[var(--apple-white)]">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--apple-white)]/80 backdrop-blur-xl border-b border-[var(--apple-border)]/50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Image
+            src="/medibill_logo.svg"
+            alt="MediBill"
+            width={120}
+            height={40}
+            className="h-8 w-auto"
+            priority
+          />
+          <div className="flex items-center gap-6">
+            <span className="text-sm text-[var(--apple-gray)]">{user?.email}</span>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-[var(--apple-blue)] hover:underline transition-colors"
+            >
+              Sign Out
+            </button>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Sign Out
-          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Upload Section */}
-      <div className="z-10 w-full max-w-2xl p-8 bg-white rounded-lg shadow-md mb-8">
-        <h1 className="mb-6 text-2xl font-bold text-gray-800">Medical Record Upload</h1>
+      {/* Main Content */}
+      <main className="pt-32 pb-24 px-6">
+        <div className="max-w-2xl mx-auto text-center animate-fade-in-up">
+          {/* Hero */}
+          <h1 className="text-headline mb-6">
+            Analyze your<br />medical bills.
+          </h1>
+          <p className="text-body text-xl max-w-lg mx-auto mb-16">
+            Upload your medical bill and let our AI identify potential savings
+            and generate appeal letters instantly.
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">
-              Select Record (PDF, JPG, PNG)
-            </label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-          </div>
+          {/* Upload Card */}
+          <form onSubmit={handleSubmit} className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            <div
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              className={`
+                card-apple p-12 transition-all duration-300 cursor-pointer
+                ${dragActive ? "border-[var(--apple-blue)] bg-[var(--apple-blue)]/5" : ""}
+                ${file ? "border-[var(--apple-green)]" : ""}
+              `}
+            >
+              <input
+                type="file"
+                id="file-upload"
+                onChange={handleFileChange}
+                accept=".pdf,.png,.jpg,.jpeg"
+                className="hidden"
+              />
 
-          <button
-            type="submit"
-            disabled={!file || status === "uploading"}
-            className={`w-full px-4 py-2 text-white font-bold rounded-md transition-colors
-              ${status === "uploading"
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"}`}
-          >
-            {status === "uploading" ? "Analyzing with AI..." : "Secure Upload & Analyze"}
-          </button>
-        </form>
+              <label htmlFor="file-upload" className="cursor-pointer block">
+                <div className="flex flex-col items-center">
+                  {file ? (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-[var(--apple-green)]/10 flex items-center justify-center mb-6">
+                        <svg className="w-8 h-8 text-[var(--apple-green)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-lg font-medium text-[var(--apple-black)] mb-2">{file.name}</p>
+                      <p className="text-sm text-[var(--apple-gray)]">Click to choose a different file</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-[var(--apple-light-gray)] flex items-center justify-center mb-6">
+                        <svg className="w-8 h-8 text-[var(--apple-gray)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <p className="text-lg font-medium text-[var(--apple-black)] mb-2">
+                        Drop your medical bill here
+                      </p>
+                      <p className="text-sm text-[var(--apple-gray)]">or click to browse</p>
+                      <p className="text-xs text-[var(--apple-gray)] mt-4">Supports PDF, PNG, JPG</p>
+                    </>
+                  )}
+                </div>
+              </label>
+            </div>
 
-        {/* Status Messages */}
-        {status === "error" && (
-          <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
-            ❌ {message}
-          </div>
-        )}
-      </div>
-    </main>
+            {status === "error" && (
+              <div className="mt-4 p-4 rounded-xl bg-[var(--apple-red)]/5 border border-[var(--apple-red)]/20 text-[var(--apple-red)] text-sm">
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={!file || status === "uploading"}
+              className="btn-apple btn-apple-primary w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {status === "uploading" ? (
+                <span className="flex items-center justify-center gap-3">
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Analyzing...
+                </span>
+              ) : (
+                "Analyze Bill"
+              )}
+            </button>
+          </form>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="py-8 text-center text-caption border-t border-[var(--apple-border)]">
+        <p>© 2026 MediBill. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }

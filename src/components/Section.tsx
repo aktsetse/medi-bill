@@ -6,9 +6,9 @@ interface SectionProps {
 
 export default function Section({ title, children, className = "" }: SectionProps) {
     return (
-        <section className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+        <section className={`card-apple p-8 ${className}`}>
             {title && (
-                <h2 className="text-base font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-100">
+                <h2 className="text-lg font-semibold text-[var(--apple-black)] mb-6 pb-4 border-b border-[var(--apple-border)]">
                     {title}
                 </h2>
             )}

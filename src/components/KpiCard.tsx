@@ -6,19 +6,25 @@ interface KpiCardProps {
     title: string;
     value: number;
     subtitle?: string;
+    highlight?: boolean;
 }
 
-export default function KpiCard({ title, value, subtitle }: KpiCardProps) {
+export default function KpiCard({ title, value, subtitle, highlight }: KpiCardProps) {
     return (
-        <div className="bg-white border border-gray-200 rounded-lg p-5">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <div className={`
+            card-apple p-6 transition-all duration-300
+            ${highlight ? "bg-[var(--apple-black)] text-white" : ""}
+        `}>
+            <p className={`text-sm font-medium mb-2 ${highlight ? "text-white/70" : "text-[var(--apple-gray)]"}`}>
                 {title}
             </p>
-            <p className="mt-2 text-2xl font-semibold text-gray-900">
+            <p className={`text-3xl font-semibold tracking-tight ${highlight ? "text-white" : "text-[var(--apple-black)]"}`}>
                 {formatCurrency(value)}
             </p>
             {subtitle && (
-                <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+                <p className={`mt-2 text-sm ${highlight ? "text-white/60" : "text-[var(--apple-gray)]"}`}>
+                    {subtitle}
+                </p>
             )}
         </div>
     );

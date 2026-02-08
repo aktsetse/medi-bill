@@ -13,10 +13,10 @@ export default function AppealLetter({ content, id = "appeal-letter" }: AppealLe
     return (
         <div
             id={id}
-            className="bg-white border border-gray-200 rounded p-8 max-h-[500px] overflow-y-auto"
-            style={{ fontFamily: "'Times New Roman', Times, serif" }}
+            className="bg-white border border-[var(--apple-border)] rounded-xl p-10 max-h-[600px] overflow-y-auto"
+            style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
         >
-            <div className="max-w-2xl mx-auto space-y-6 text-sm leading-relaxed text-gray-800">
+            <div className="max-w-2xl mx-auto space-y-5 text-[15px] leading-relaxed text-[var(--apple-black)]">
                 {formattedContent.split("\n\n").map((paragraph, index) => (
                     <p key={index} className="text-justify">
                         {paragraph}

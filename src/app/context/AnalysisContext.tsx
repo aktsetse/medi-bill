@@ -6,8 +6,9 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export interface AnalysisResult {
   email: string;
   appeal: string;
-  potential_money_back: string;
-  percentage?: string;
+  potential_money_back: number;
+  percentage?: number;
+  total_billed_amount: number;
 }
 
 interface AnalysisContextType {

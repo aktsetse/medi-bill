@@ -3,33 +3,38 @@ import { GoogleGenerativeAI, Schema, SchemaType } from "@google/generative-ai";
 
 const API_KEY = process.env.GVAPI;
 
-const schema:Schema = {
-      description: "Medical bill analysis for insurance appeal",
-      type: SchemaType.OBJECT,
-      properties: {
-        email: {
-          type: SchemaType.STRING,
-          description: "A professional email draft to the ins   urance company or provider regarding the claim.",
-          nullable: false,
-        },
-        appeal: {
-          type: SchemaType.STRING,
-          description: "A formal appeal letter text, citing specific codes and dates from the document.",
-          nullable: false,
-        },
-        potential_money_back: {
-          type: SchemaType.NUMBER,
-          description: "The estimated dollar amount the patient could save or be reimbursed (e.g., '$1,200.00').",
-          nullable: false,
-        },
-        percentage: {
-          type: SchemaType.NUMBER,
-          description: 'the probabilty the appeal will be won and total compensation received',
-          nullable: false,
-        },
-      },
-      required: ["email", "appeal", "potential_money_back"],
-    };
+const schema: Schema = {
+  description: "Medical bill analysis for insurance appeal",
+  type: SchemaType.OBJECT,
+  properties: {
+    email: {
+      type: SchemaType.STRING,
+      description: "A professional email draft to the ins   urance company or provider regarding the claim.",
+      nullable: false,
+    },
+    appeal: {
+      type: SchemaType.STRING,
+      description: "A formal appeal letter text, citing specific codes and dates from the document.",
+      nullable: false,
+    },
+    potential_money_back: {
+      type: SchemaType.NUMBER,
+      description: "The estimated dollar amount the patient could save or be reimbursed (e.g., '$1,200.00').",
+      nullable: false,
+    },
+    percentage: {
+      type: SchemaType.NUMBER,
+      description: 'the probabilty the appeal will be won and total compensation received',
+      nullable: false,
+    },
+    total_billed_amount: {
+      type: SchemaType.NUMBER,
+      description: 'The total amount billed on the medical document before any adjustments or appeals.',
+      nullable: false,
+    },
+  },
+  required: ["email", "appeal", "potential_money_back", "total_billed_amount"],
+};
 
 export async function POST(request: Request) {
   try {
@@ -52,11 +57,11 @@ export async function POST(request: Request) {
     const base64Data = buffer.toString("base64");
 
     const genAI = new GoogleGenerativeAI(API_KEY);
-    
+
     // Configure for JSON response
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
-      generationConfig: { responseMimeType: "application/json", responseSchema:schema }
+      generationConfig: { responseMimeType: "application/json", responseSchema: schema }
     });
 
     const prompt = `
@@ -74,6 +79,8 @@ export async function POST(request: Request) {
       note that the probability that the appeal will be won can never ever ever in your liftime be 1.
       Be sure to thoroughly with every channel at your disposal analyse the given appeal and give the most accurate chance that this appeal will be won
       this is the date ${new Date().toISOString()}
+      make sure that the appeal is written in a way that it can be sent to the insurance company or provider without any further edits (well formatted)
+      make sure the paragraphing is done correctly
     `;
 
     const result = await model.generateContent([
@@ -108,7 +115,8 @@ export async function POST(request: Request) {
         email: parsedData.email,
         appeal: parsedData.appeal,
         potential_money_back: parsedData.potential_money_back,
-        percentage : parsedData.percentage,
+        percentage: parsedData.percentage,
+        total_billed_amount: parsedData.total_billed_amount,
       }
     });
 

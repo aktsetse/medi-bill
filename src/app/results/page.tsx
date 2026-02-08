@@ -2,32 +2,29 @@
 
 import { useAnalysis } from "../context/AnalysisContext";
 import Link from "next/link";
+import KpiCard from "@/components/KpiCard";
+import SpendComparisonChart from "@/components/SpendComparisonChart";
+import Section from "@/components/Section";
+import ActionPanel from "@/components/ActionPanel";
+import AppealLetter from "@/components/AppealLetter";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 export default function ResultsPage() {
     const { analysis } = useAnalysis();
 
-    const handleSendEmail = async () => {
-        if (!analysis?.email) return;
-
-        console.log("Sending email with content:", analysis.email);
-
-        // TODO: Implement the actual email sending logic here
-        alert("Email sending logic triggered! (Check console for content)");
-    };
-
-    // Empty state when no data exists
+    // Empty state
     if (!analysis) {
         return (
-            <main className="flex min-h-screen flex-col items-center justify-center p-12 bg-gray-50">
-                <div className="text-center space-y-6">
-                    <div className="text-6xl">📋</div>
-                    <h1 className="text-2xl font-bold text-gray-800">No Results Yet</h1>
-                    <p className="text-gray-600 max-w-md">
+            <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+                <div className="text-center space-y-4">
+                    <div className="text-5xl text-gray-300">📋</div>
+                    <h1 className="text-xl font-semibold text-gray-800">No Results Yet</h1>
+                    <p className="text-gray-500 max-w-sm">
                         Upload and analyze a medical record to see your results here.
                     </p>
                     <Link
                         href="/"
-                        className="inline-block px-6 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors"
+                        className="inline-block px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
                     >
                         ← Go Back to Upload
                     </Link>
@@ -36,71 +33,126 @@ export default function ResultsPage() {
         );
     }
 
+    // Derived metrics
+    const totalBilled = analysis.total_billed_amount;
+    const potentialSavings = analysis.potential_money_back;
+    const savingsPercentage = totalBilled > 0
+        ? ((potentialSavings / totalBilled) * 100).toFixed(1)
+        : "0";
+    const reportDate = new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+
     return (
-        <main className="flex min-h-screen flex-col items-center justify-start p-12 bg-gray-50">
-            {/* Back Navigation */}
-            <div className="w-full max-w-2xl mb-6">
+        <main className="min-h-screen bg-gray-50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Back link */}
                 <Link
                     href="/"
-                    className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
+                    className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-6"
                 >
-                    ← Upload Another Record
+                    ← Back to Upload
                 </Link>
-            </div>
 
-            {/* Results Section */}
-            <div className="w-full max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Main Content */}
+                    <div className="flex-1 space-y-6">
+                        {/* Header */}
+                        <header className="bg-white border border-gray-200 rounded-lg p-6">
+                            <h1 className="text-xl font-semibold text-gray-900">
+                                Medical Bill Analysis Report
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Billing Review & Appeal Recommendations
+                            </p>
+                            <p className="text-xs text-gray-400 mt-2">{reportDate}</p>
+                        </header>
 
-                {/* Success Header */}
-                <div className="p-4 bg-green-100 text-green-700 rounded-md text-center">
-                    ✅ Analysis Complete!
-                </div>
+                        {/* KPI Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <KpiCard title="Total Billed" value={totalBilled} />
+                            <KpiCard
+                                title="Potential Savings"
+                                value={potentialSavings}
+                                subtitle={`${savingsPercentage}% of total`}
+                            />
+                            <KpiCard
+                                title="Estimated Net Cost"
+                                value={totalBilled - potentialSavings}
+                            />
+                        </div>
 
-                {/* Recovery Stats Card */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 bg-green-50 border border-green-200 rounded-lg text-center">
-                        <h3 className="text-sm font-medium text-green-800 uppercase tracking-wider">Potential Recovery</h3>
-                        <p className="mt-2 text-3xl font-extrabold text-green-600">{analysis.potential_money_back}</p>
+                        {/* Chart Section */}
+                        <Section title="Potential Money Saved">
+                            <SpendComparisonChart
+                                totalBilled={totalBilled}
+                                potentialSavings={potentialSavings}
+                            />
+                        </Section>
+
+                        {/* Recommendations */}
+                        <Section title="Recommendations">
+                            <div className="space-y-4">
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                                        Appeal Strategy
+                                    </h4>
+                                    <ul className="text-sm text-gray-600 space-y-1.5 list-disc list-inside">
+                                        <li>Review itemized charges for duplicate or erroneous entries</li>
+                                        <li>Compare charges against standard rates for your region</li>
+                                        <li>Contact your insurance provider to verify coverage details</li>
+                                        <li>Submit formal appeal using the generated letter below</li>
+                                    </ul>
+                                </div>
+                                {analysis.percentage !== undefined && (
+                                    <div className="mt-4 pt-4 border-t border-gray-100">
+                                        <p className="text-sm text-gray-600">
+                                            <span className="font-medium text-gray-700">Win Probability: </span>
+                                            {(analysis.percentage * 100).toFixed(0)}%
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </Section>
+
+                        {/* Appeal Letter */}
+                        <Section title="Generated Appeal Letter">
+                            <div className="flex justify-end mb-3">
+                                <button
+                                    onClick={() => navigator.clipboard.writeText(analysis.appeal)}
+                                    className="text-xs text-gray-500 hover:text-gray-700 underline"
+                                >
+                                    Copy to clipboard
+                                </button>
+                            </div>
+                            <AppealLetter content={analysis.appeal} id="appeal-letter-content" />
+                        </Section>
+
+                        {/* Assumptions & Notes */}
+                        <section className="text-xs text-gray-400 space-y-1 px-1">
+                            <p className="font-medium text-gray-500">Assumptions & Notes</p>
+                            <ul className="list-disc list-inside space-y-0.5">
+                                <li>Analysis based on uploaded document data only</li>
+                                <li>Savings estimates are approximate and subject to negotiation</li>
+                                <li>Win probability is an algorithmic estimate, not a guarantee</li>
+                                <li>Consult with a healthcare billing specialist for complex cases</li>
+                            </ul>
+                        </section>
                     </div>
-                    <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                        <h3 className="text-sm font-medium text-blue-800 uppercase tracking-wider">Win Probability</h3>
-                        <p className="mt-2 text-3xl font-extrabold text-blue-600">
-                            {Number(analysis.percentage) || "N/A"}
-                        </p>
-                    </div>
+
+                    {/* Action Panel - Sidebar on desktop, top on mobile */}
+                    <aside className="lg:w-64 order-first lg:order-last">
+                        <div className="lg:sticky lg:top-8">
+                            <ActionPanel
+                                letterElementId="appeal-letter-content"
+                                emailContent={analysis.appeal}
+                                emailSubject={`Medical Bill Appeal - ${formatCurrency(potentialSavings)} Potential Recovery`}
+                            />
+                        </div>
+                    </aside>
                 </div>
-
-                {/* Appeal Letter Display */}
-                <div className="p-8 bg-white rounded-lg shadow-md border border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-gray-900">Appeal Letter</h2>
-                        <button
-                            onClick={() => navigator.clipboard.writeText(analysis.appeal)}
-                            className="text-sm text-gray-500 hover:text-blue-600 underline"
-                        >
-                            Copy Text
-                        </button>
-                    </div>
-
-                    <div className="p-4 bg-gray-50 rounded-md border border-gray-200 h-96 overflow-y-auto font-mono text-sm whitespace-pre-wrap text-gray-700">
-                        {analysis.appeal}
-                    </div>
-                </div>
-
-                {/* Email Action Area */}
-                <div className="p-6 bg-indigo-50 rounded-lg border border-indigo-100 flex flex-col items-center text-center">
-                    <h3 className="text-lg font-semibold text-indigo-900 mb-2">Ready to submit?</h3>
-                    <p className="text-indigo-700 mb-4 text-sm max-w-md">
-                        We have drafted an email to your provider based on this appeal. Click below to review and send.
-                    </p>
-                    <button
-                        onClick={handleSendEmail}
-                        className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700 shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2"
-                    >
-                        <span>📧</span> Prepare Draft Email
-                    </button>
-                </div>
-
             </div>
         </main>
     );
